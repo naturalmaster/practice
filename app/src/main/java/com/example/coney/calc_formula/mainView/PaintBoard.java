@@ -6,36 +6,44 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import com.example.coney.calc_formula.IO.FileOper;
 import com.example.coney.calc_formula.MyApplication;
 import com.example.coney.calc_formula.dataManage.DataHelper;
 import com.example.coney.calc_formula.dataManage.data.Book;
+import com.example.coney.calc_formula.dataManage.data.Cell;
+import com.example.coney.calc_formula.dataManage.data.ColAttri;
+import com.example.coney.calc_formula.dataManage.data.Row;
+import com.example.coney.calc_formula.dataManage.data.Sheet;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
- * Created by coney on 2018/11/12.
+ * @author s_hfj
  */
 
 public class PaintBoard extends View {
-    private VelocityTracker velocityTracker;
-    private float downX;
-    private float downY;
-    private float upX;
-    private float upY;
-    private Book book;
-    private long currentTime;
+    private EditText inputText;
+    private GestureDetector mDetector;
 
+    private Book book;
     private int selectSheetId = 1;
     private Context mContext;
 
     private PaintData paintData;
+    private OnSelcRecChangedListener selcRecChangedListener;
 
     public PaintBoard(Context context) {
         this(context,null);
@@ -46,62 +54,70 @@ public class PaintBoard extends View {
         super(context, attrs);
         this.mContext = context;
         init();
-
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         PaintUtils.drawGrib(canvas,paintData);
-        invalidate();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        DataHelper helper = new DataHelper();
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                downX =  event.getX();
-                downY =  event.getY();
-                currentTime = System.currentTimeMillis();
-                velocityTracker.addMovement(event);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                //速度追踪器
-//                velocityTracker.computeCurrentVelocity (1000,200.0F);
-                if ( Math.abs(downX-event.getX())<8 && Math.abs(downY - event.getY())<8) {
-                    break;
-                }
-                paintData.setVerticalOffset((downY - event.getY()+paintData.getVerticalOffset()));
-                paintData.setHorizonalOffset((downX-event.getX()+paintData.getHorizonalOffset()));
-                downX = event.getX();
-                downY = event.getY();
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                upX = event.getX();
-                upY = event.getY();
-                if (System.currentTimeMillis() - currentTime<=100){
-                    paintData.setSelectedColStr(helper.xIndexToColId(upX,paintData));
-                    paintData.setSelectedRowId(helper.yIndexToRowId(upY,paintData));
-                    postInvalidate();
-                }
-                break;
+        if (mDetector.onTouchEvent(event)){
+            return true;
         }
-        return true;
+        return super.onTouchEvent(event);
     }
 
+
     private void init(){
-        velocityTracker = VelocityTracker.obtain ();
+        //初始化屏幕参数
         initScreenAttri();
+        //设置监听器
+        initListener();
+//        Book book = new Book("default");
+//        Sheet sheet = new Sheet("A1:A1",new HashMap<Integer, Row>(),new HashMap<String, ColAttri>());
+//        sheet.setSheetId(0);
+//        book.getSheets().put(0,sheet);
+//        paintData = new PaintData(0,book);
+
         //加载xml文件，暂时使用assets文件夹
         try {
-            book = new FileOper().loadFile_(MyApplication.getmContext().getAssets().open("sheet1.xml"));
+            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
+            Log.d("book_null","******************");
+//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR+"/sheet1.xml")));
+//            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
+            Log.d("book_null",(book == null) + "");
         } catch (IOException e) {
             e.printStackTrace();
         }
         paintData = new PaintData(selectSheetId,book);
+        selcRecChangedListener = new SelcMonitor(paintData);
     }
+
+//    public void loadFile(String fileName){
+//        //加载xml文件，暂时使用assets文件夹
+//        try {
+////            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
+//            Log.d("book_null","******************");
+//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR,fileName)));
+////            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
+//            Log.d("book_null",(book == null) + "");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        paintData = new PaintData(selectSheetId,book);
+//    }
+    private void initListener(){
+        //手势监听
+        GestureListener gestureListener = new GestureListener();
+        mDetector = new GestureDetector(MyApplication.getmContext(),gestureListener);
+        mDetector.setOnDoubleTapListener(gestureListener);
+
+    }
+
     private void initScreenAttri(){
         Point startP = new Point();
         Point endP = new Point();
@@ -112,5 +128,110 @@ public class PaintBoard extends View {
         PaintData.setTableStartP(startP);
         PaintData.setTableEndP(endP);
     }
+
+
+    public PaintData getPaintData(){
+        return this.paintData;
+    }
+    public void setInputText(EditText mInputText){
+        this.inputText = mInputText;
+        //EditText监听
+        inputText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                inputText.setCursorVisible(true);
+                inputText.setSelection(inputText.getText().length());
+            }
+        });
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            InputMethodManager inputMethodManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputText.getVisibility() == View.GONE){
+                return super.onKeyUp(keyCode,event);
+            }
+            inputMethodManager.hideSoftInputFromWindow(getWindowToken(),0);
+            inputText.setVisibility(View.GONE);
+            return true;
+        }
+        return super.onKeyUp(keyCode,event);
+    }
+
+    class GestureListener implements GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener{
+        DataHelper helper = new DataHelper();
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            InputMethodManager inputMethodManager = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            inputText.setVisibility(View.VISIBLE);
+            inputText.setCursorVisible(true);
+            inputMethodManager.showSoftInput(inputText,0);
+            return true;
+        }
+
+        @Override
+        public boolean onDoubleTapEvent(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+
+            return true;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            int oldRow = paintData.getSelectedRowId();
+            String oldCol = paintData.getSelectedColStr();
+            int selcRow = helper.yIndexToRowId(e.getY(),paintData);
+            String selcCol = helper.xIndexToColId(e.getX(),paintData);
+            if (oldRow!=selcRow || !oldCol.equals(selcCol)){
+                selcRecChangedListener.onSelcRecChanged(oldRow,oldCol, String.valueOf(inputText.getText()));
+            }
+            paintData.setSelectedRowId(selcRow);
+            paintData.setSelectedColStr(selcCol);
+            Cell cell = helper.getCell(selcRow,selcCol,paintData);
+            inputText.setCursorVisible(false);
+            if (cell!=null){
+                inputText.setText(cell.getValue());
+            }else{
+                inputText.setText("");
+
+            }
+            inputText.setSelection(inputText.getText().length());
+            postInvalidate();
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            paintData.setVerticalOffset(distanceY+paintData.getVerticalOffset());
+            paintData.setHorizonalOffset(distanceX+paintData.getHorizonalOffset());
+            invalidate();
+            return true;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    }
+
 
 }

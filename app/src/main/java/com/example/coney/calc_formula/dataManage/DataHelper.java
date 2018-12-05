@@ -1,14 +1,18 @@
 package com.example.coney.calc_formula.dataManage;
 
 import com.example.coney.calc_formula.dataManage.data.Cell;
+import com.example.coney.calc_formula.dataManage.data.ColAttri;
 import com.example.coney.calc_formula.dataManage.data.Row;
 import com.example.coney.calc_formula.dataManage.data.Sheet;
+import com.example.coney.calc_formula.mainView.PaintBoard;
 import com.example.coney.calc_formula.mainView.PaintData;
 
 import java.util.HashMap;
 
 /**
- * Created by coney on 2018/11/12.
+ *
+ * @author coney
+ * @date 2018/11/12
  */
 
 public class DataHelper {
@@ -25,6 +29,9 @@ public class DataHelper {
         return getCell(rowId,colStr,paintData.getPresentSheet());
     }
 
+    public Cell getCell(int rowId,String colStr,PaintData paintData){
+      return getCell(rowId,colStr,paintData.getPresentSheet());
+    }
     /**
      * 根据行号，列值返回Unit数据对象
      * @param rowId 行号
@@ -33,11 +40,14 @@ public class DataHelper {
      */
     private Cell getCell(Integer rowId, String colStr,Sheet sheet){
         HashMap<Integer,Row> rows = sheet.getRows();
-        if (!rows.containsKey(rowId))
+        if (!rows.containsKey(rowId)){
             return null;
+        }
         HashMap<String,Cell> cellMap = rows.get(rowId).getUnitMap();
-        if (cellMap == null)
+        if (cellMap == null){
             return null;
+
+        }
         return cellMap.get(colStr+rowId);
     }
 
@@ -47,11 +57,23 @@ public class DataHelper {
      * @return  列号
      */
     public String xIndexToColId(float x, PaintData paintData){
-        float rowWidth = paintData.getPresentSheet().getDefColWidth();
+        x-=paintData.getDefColWidth();
+        DataHelper helper = new DataHelper();
+        HashMap<String,ColAttri> colAttriHashMap = paintData.getPresentSheet().getColAttriMap();
+        int colNum = 0;
         float xOffset = paintData.getHorizonalOffset();
-//        int tmpNum = (x+xOffset%rowWidth-2*rowWidth)/rowWidth+xOffset/rowWidth;
-        float tmpNum = ((x-rowWidth+xOffset)/rowWidth);
-        return ""+((char)('A'+tmpNum));
+        float rawX = 0;
+        float presentColWidth;
+        do {
+            colNum++;
+            if (colAttriHashMap.get(helper.numToColStr(colNum)) == null){
+                presentColWidth = paintData.getDefColWidth();
+            }else{
+                presentColWidth = colAttriHashMap.get(helper.numToColStr(colNum)).getColWidth();
+            }
+            rawX+=presentColWidth;
+        }while (rawX<xOffset+x);
+        return helper.numToColStr(colNum);
 
     }
 
@@ -61,10 +83,22 @@ public class DataHelper {
      * @return  以Integer对象形式返回行号
      */
     public Integer yIndexToRowId(float y,PaintData paintData){
-        float rowHeight = paintData.getPresentSheet().getDefRowHeight();
+        HashMap<Integer,Row> rowHashMap = paintData.getPresentSheet().getRows();
+        y-=paintData.getDefRowHeight();
+        float rawY = 0;
+        int rowNum = 0;
         float yOffset = paintData.getVerticalOffset();
-        float tmpNum = (((y-rowHeight+yOffset)/rowHeight)+1);
-        return new Integer((int) tmpNum);
+        float presentRowHeight;
+        do {
+            rowNum++;
+            if (rowHashMap.get(rowNum) == null){
+                presentRowHeight = paintData.getDefRowHeight();
+            }else{
+                presentRowHeight = rowHashMap.get(rowNum).getRowHeight();
+            }
+            rawY+=presentRowHeight;
+        }while (rawY<yOffset+y);
+        return rowNum;
     }
 
     /**
@@ -72,7 +106,7 @@ public class DataHelper {
      * @param colStr
      * @return
      */
-    public int colStrToNum(String colStr){
+    public static int colStrToNum(String colStr){
         if (colStr==null || colStr.length()==0){
             return -1;
         }
@@ -85,15 +119,168 @@ public class DataHelper {
         return res;
     }
 
-    public String numToColStr(int colId){
-        if (colId==0) return "";
+    /**
+     * 将列的数字转换为列的id
+     * 如 20就转化为对应的‘T’
+     *    27转化为AA
+     * @param colId 列号
+     * @return
+     */
+    public static String numToColStr(int colId){
+        if (colId==0) {
+            return "";
+        }
         int tmp = colId%26;
-        if (tmp == 0)
-        return numToColStr(colId/26-1)+'Z';
+        if (tmp == 0){
+            return numToColStr(colId/26-1)+'Z';
+        }
         return numToColStr(colId/26)+(char)('A'+colId%26-1);
     }
 
+    public boolean updateCell(PaintData paintData,int rowId,String colId,String value){
+        if (rowId == 0 || colId == null ) return false;
+        HashMap<Integer,Row> rows = paintData.getPresentSheet().getRows();
+        Row row = rows.get(rowId);
+        Cell cell;
+        if (row ==null){//如果此行数据为空，直接新建Cell元素即可完成数据的读写
+            row = new Row();
+            row.setUnitMap(new HashMap<String, Cell>());
+            row.setRowId(rowId);
+            cell = new Cell();
+            cell.setValue(value);
+            cell.setId(colId+rowId);
+            row.getUnitMap().put(cell.getId(),cell);
+            rows.put(rowId,row);
+        }else {
+            cell = row.getUnitMap().get(colId+rowId);//行数据不为空，但是要判断是否含有此单元格数据
+            if (cell == null){
+                cell = new Cell();
+                cell.setId(colId+rowId);
+                cell.setValue(value);
+                row.getUnitMap().put(colId+rowId,cell);
+            }else {
+                if (cell.getValue() == value){
+                    //什么也不做
+                }else {
+                    cell.setValue(value);
+                }
+            }
+        }
+        return true;
+    }
 
 
+    /**
+     * 根据行号和列号获得对应单元格的矩形左上角坐标
+     * @param colStr 列号
+     * @return 返回对应的单元格列ID左上角x坐标
+     */
+    public float getXByCol(String colStr,PaintData paintData){
 
+        HashMap<String,ColAttri> colAttriHashMap = paintData.getPresentSheet().getColAttriMap();
+        float xOffset = paintData.getHorizonalOffset();
+        DataHelper helper = new DataHelper();
+        int finalColNum = helper.colStrToNum(colStr);
+        int tmpCol = 1;
+        float rawX = 0;
+        float presentColWidth;
+        while(tmpCol<finalColNum){
+            if (colAttriHashMap.get(helper.numToColStr(tmpCol)) == null){
+                presentColWidth = paintData.getDefColWidth();
+            }else{
+                presentColWidth = colAttriHashMap.get(helper.numToColStr(tmpCol)).getColWidth();
+
+            }
+
+            rawX+=presentColWidth;
+            tmpCol++;
+        }
+
+        return rawX - xOffset + paintData.getDefColWidth();
+    }
+    /**
+     * 根据行号和列号获得对应单元格的矩形左上角坐标
+     * @param rowId 行号
+     * @return 返回对应的单元格行ID左上角y坐标
+     */
+    public float getYByRow(Integer rowId,PaintData paintData){
+        float yOffset = paintData.getVerticalOffset();
+        float rawY = 0;
+        int tmpRowId = 1;
+        float presentRowHeight = 0;
+        HashMap<Integer,Row> rowHashMap = paintData.getPresentSheet().getRows();
+        while(tmpRowId<rowId){
+            if (rowHashMap.get(tmpRowId) == null){
+                presentRowHeight = paintData.getDefRowHeight();
+            }else{
+                presentRowHeight = rowHashMap.get(tmpRowId).getRowHeight();
+            }
+            rawY+=presentRowHeight;
+            tmpRowId++;
+        }
+        return rawY-yOffset+paintData.getDefRowHeight();
+    }
+
+    /**
+     * 根据Row的ID值获取该行的行高
+     * @param rowId
+     * @param paintData
+     * @return
+     */
+    public float getRowHeightByRowId(int rowId,PaintData paintData){
+        float result;
+        HashMap<Integer,Row> rows = paintData.getPresentSheet().getRows();
+        Row row = rows.get(rowId);
+        if (row == null){
+            result = paintData.getDefRowHeight();
+        }else {
+            result = row.getRowHeight();
+        }
+        return result;
+    }
+
+    public float getColWidthByColId(String colId,PaintData paintData){
+        float result;
+        HashMap<String,ColAttri> colAttriHashMap = paintData.getPresentSheet().getColAttriMap();
+        ColAttri colAttri = colAttriHashMap.get(colId);
+        if (colAttri == null){
+            result = paintData.getDefColWidth();
+        }else {
+            result = colAttri.getColWidth();
+        }
+        return result;
+    }
+
+
+    /**
+     *由范围字符转化为两个区间数组
+     * @param rangeStr 范围字符串
+     * @param row int型数组，有两个值，下标为0，1分别对应行开始，行结束
+     * @param col String数组，下标为0、1分别对应列的开始和结束
+     */
+    public static void convertRangeStr(String rangeStr,int[] row,String[] col){
+        int startRow,endRow;
+        String startCol,endCol;
+
+        /*下面是利用rangeStr解析出四个边界数据，startCol,endCol,startRow,endRow*/
+        int first = -1;
+        int tail;
+        //寻找第一个不是数字的
+        while(!Character.isDigit(rangeStr.charAt(++first)));
+        tail =first;
+        startCol = rangeStr.substring(0,first);
+        //遇到冒号就停止
+        while (rangeStr.charAt(++tail) != ':');
+        startRow = Integer.valueOf(rangeStr.substring(first,tail));
+
+        first = tail+1;
+        while (++tail<rangeStr.length() && !Character.isDigit(rangeStr.charAt(tail)));
+        endCol = rangeStr.substring(first,tail);
+
+        endRow = Integer.valueOf(rangeStr.substring(tail, rangeStr.length()));
+        row[0] = startRow;
+        row[1] = endRow;
+        col[0] = startCol;
+        col[1] = endCol;
+    }
 }

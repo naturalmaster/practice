@@ -4,17 +4,19 @@ package com.example.coney.calc_formula.dataManage.data;
 import java.util.HashMap;
 
 /**
- * Created by coney on 2018/11/12.
+ *
+ * @author coney
+ * @date 2018/11/12
  */
 
 public class Sheet {
     private String rangeStr;
     private HashMap<Integer,Row> rows;
-    private HashMap<String,ColAttri> colAttriMap;
+    private HashMap<String,ColAttri> colAttriMap = null;
     private int sheetId;
 
-    private float defRowHeight = 100;
-    private float defColWidth = 200;
+    private float defRowHeight = 80f;
+    private float defColWidth = 200f;
 
 
     public int getSheetId() {
@@ -25,15 +27,19 @@ public class Sheet {
         this.sheetId = sheetId;
     }
 
-
     public Sheet(String rangeStr, HashMap<Integer, Row> rows,HashMap<String,ColAttri> colAttrMap) {
-        this.rangeStr = rangeStr;
+        setRangeStr(rangeStr);
         this.rows = rows;
-    }
-    public Sheet(String rangeStr, HashMap<Integer, Row> rows) {
-        this(rangeStr,rows,new HashMap<String, ColAttri>());
+        this.colAttriMap = colAttrMap;
     }
 
+    public HashMap<String, ColAttri> getColAttriMap() {
+        return colAttriMap;
+    }
+
+    public void setColAttriMap(HashMap<String, ColAttri> colAttriMap) {
+        this.colAttriMap = colAttriMap;
+    }
 
     public HashMap<Integer, Row> getRows() {
         return rows;
@@ -53,7 +59,7 @@ public class Sheet {
 
 
 
-    public float getDefRowHeight() {
+    public float getRawDefRowHeight() {
         return defRowHeight;
     }
 
@@ -61,7 +67,7 @@ public class Sheet {
         this.defRowHeight = defRowHeight;
     }
 
-    public float getDefColWidth() {
+    public float getRawDefColWidth() {
         return defColWidth;
     }
 

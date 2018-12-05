@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by coney on 2018/11/15.
+ *
+ * @author coney
+ * @date 2018/11/15
  */
 
 public class Book {
@@ -22,6 +24,10 @@ public class Book {
 
     public void setFILE_URL(String FILE_URL) {
         this.FILE_URL = FILE_URL;
+    }
+
+    public int getSheetCnt() {
+        return sheets.size();
     }
 
     public HashMap<Integer,Sheet> getSheets() {

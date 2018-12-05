@@ -43,14 +43,6 @@ public class DataHelperTest {
 
     }
 
-    @Test
-    public void TestLocToUnitId(){
-        int x = 250;
-        int y = 250;
-        DataHelper helper = new DataHelper();
-        String res = helper.xIndexToColId(x);
-        Integer resy = helper.yIndexToRowId(y);
-        System.out.println("offset xOffst"+ Sheet.getHorizonalOffset()+" Offset yOffset "+Sheet.getVerticalOffset()+ "\n"+res +resy);
-    }
+
 
 }

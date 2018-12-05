@@ -3,7 +3,9 @@ package com.example.coney.calc_formula.dataManage.data;
 import android.util.Log;
 
 /**
- * Created by coney on 2018/11/12.
+ *
+ * @author coney
+ * @date 2018/11/12
  */
 
 public class Cell {

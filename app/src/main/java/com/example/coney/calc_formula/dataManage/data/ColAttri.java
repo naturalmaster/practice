@@ -1,18 +1,23 @@
 package com.example.coney.calc_formula.dataManage.data;
 
 /**
- * Created by coney on 2018/11/15.
+ *
+ * @author coney
+ * @date 2018/11/15
  */
 
 public class ColAttri {
     private float defColWidth = 200;
     private boolean bestFit;
-    private float colWidth;
+    private float colWidth = -1;
     private String colStr;
 
     public float getColWidth() {
+        if (colWidth == -1)
+            return  defColWidth;
         return colWidth;
     }
+
 
     public void setColWidth(float colWidth) {
         this.colWidth = colWidth;

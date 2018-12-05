@@ -3,17 +3,21 @@ package com.example.coney.calc_formula.dataManage.data;
 import java.util.HashMap;
 
 /**
- * Created by coney on 2018/11/12.
+ *
+ * @author coney
+ * @date 2018/11/12
  */
 
 public class Row {
 
 //     一个类，代表单行
-    //<K,V>-><colNum,unit>，以列ID为键，单元格为值
+    //HashMap<K,V>-><colNum,Cell>，以列ID为键，单元格为值
     private HashMap<String,Cell> unitMap;
 
+    private float defRowHeight = 80;
     private int rowId;
-    private float rowHeight=100;
+    private float rowHeight=-1;
+    private boolean hasRowHeight = false;
 
     public HashMap<String, Cell> getUnitMap() {
         return unitMap;
@@ -32,11 +36,23 @@ public class Row {
     }
 
 
+    public void setDefRowHeight(float defRowHeight) {
+        this.defRowHeight = defRowHeight;
+    }
+
+    public boolean isHasRowHeight() {
+        return hasRowHeight;
+    }
+
     public float getRowHeight() {
-        return rowHeight;
+        if (rowHeight>0){
+            return rowHeight;
+        }
+        return defRowHeight;
     }
 
     public void setRowHeight(float rowHeight) {
+        hasRowHeight = true;
         this.rowHeight = rowHeight;
     }
 
