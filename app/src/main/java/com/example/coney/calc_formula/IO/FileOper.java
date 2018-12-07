@@ -3,7 +3,6 @@ package com.example.coney.calc_formula.IO;
 import android.os.Environment;
 import android.util.Log;
 
-import com.example.coney.calc_formula.MyApplication;
 import com.example.coney.calc_formula.dataManage.DataHelper;
 import com.example.coney.calc_formula.dataManage.data.Book;
 import com.example.coney.calc_formula.dataManage.data.ColAttri;
@@ -22,11 +21,9 @@ import org.dom4j.io.XMLWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +38,7 @@ import java.util.List;
 public class FileOper implements IXMLFileOper{
     public static Document document;
     public static final String FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+"/my_excel";
+//    public static final String FILE_DIR = "/my_excel";
 
     @Override
     public Book loadFile(String filePath) throws FileNotFoundException {
@@ -53,6 +51,19 @@ public class FileOper implements IXMLFileOper{
     }
 
     @Override
+    public boolean loadFile(File file, Book book,int sheetId) throws FileNotFoundException {
+        if (book == null) {
+            return  false;
+        }
+        Sheet sheet = loadFromXMLStream(new FileInputStream(file));
+        if (sheet != null){
+            Log.d("book_null",(sheet.getRangeStr())+" sheet表为空");
+        }
+        book.getSheets().put(sheetId,sheet);
+        return true;
+    }
+
+    @Override
     public Book loadFile(InputStream is){
         Book book = new Book(FILE_DIR);
         Sheet sheet1 = loadFromXMLStream(is);
@@ -60,7 +71,10 @@ public class FileOper implements IXMLFileOper{
         return book;
     }
 
-    public Book loadFile_assets(InputStream inputStream){
+    /**
+     * 调试用方法
+     */
+    public Book loadFileAssets(InputStream inputStream){
         Book book = new Book("assets");
         Sheet sheet = loadFromXMLStream(inputStream);
         book.getSheets().put(1,sheet);
@@ -88,7 +102,7 @@ public class FileOper implements IXMLFileOper{
         //初始化列宽数据
         HashMap<String,ColAttri> colAttriHashMap = new HashMap<>(5);
         Element colElement = root.element("cols");
-        if (colElement!=null){
+        if (colElement != null){
             List<Element> colAttris = root.element("cols").elements("col");
                 for (Iterator<Element> iterator = colAttris.iterator();iterator.hasNext();){
                     Element mElement = iterator.next();
@@ -114,7 +128,7 @@ public class FileOper implements IXMLFileOper{
             row.setRowId(rowId);
             row.setUnitMap(getRowUnits(rowElement));
             String rowHeight = rowElement.attributeValue("ht");
-            if (rowHeight!=null){
+            if (rowHeight != null){
                 row.setRowHeight(Float.parseFloat(rowHeight));
             }
             rows.put(rowId,row);
@@ -139,11 +153,8 @@ public class FileOper implements IXMLFileOper{
         File dir = new File(FILE_DIR);
         if (!dir.exists()){
             dir.mkdirs();
-            Log.d("file_test","FILE_DIR is exist");
         }
-        Log.d("file_test",""+FILE_DIR + "  privateFileDir");
-        File file = new File(FILE_DIR,sheetName+".xml");
-
+        File file = new File(FILE_DIR,sheetName + ".xml");
         if (file.exists()){
             file.delete();
         }
@@ -153,7 +164,6 @@ public class FileOper implements IXMLFileOper{
         FileWriter fileWriter = new FileWriter(file);
         XMLWriter writer = new XMLWriter(fileWriter,format);
         writer.write(document);
-
         fileWriter.close();
         writer.close();
     }
@@ -172,13 +182,13 @@ public class FileOper implements IXMLFileOper{
         DataHelper.convertRangeStr(rangeStr,rowRange,colRange);
        // cols属性的编写
         HashMap<String, ColAttri> colAttriHashMap = sheet.getColAttriMap();
-        if (colAttriHashMap.size()>0){
+        if (colAttriHashMap.size() > 0){
             Element cols = root.addElement("cols");
             float width = 0;
             int min = 0,max = 0;
             int lastIndex = DataHelper.colStrToNum(colRange[1]);
 
-            for (int i = DataHelper.colStrToNum(colRange[0]);i<=lastIndex;i++){
+            for (int i = DataHelper.colStrToNum(colRange[0]);i <= lastIndex;i++){
                 String col = DataHelper.numToColStr(i);
                 ColAttri colAttri = colAttriHashMap.get(col);
                 if (colAttri == null){
@@ -209,7 +219,7 @@ public class FileOper implements IXMLFileOper{
         }
      //row属性的编写
         Element sheetData = root.addElement("sheetData");
-        for (int i = rowRange[0];i<=rowRange[1];i++){
+        for (int i = rowRange[0];i <= rowRange[1];i++){
             Row row = sheet.getRows().get(i);
             if (row == null){
                 continue;
@@ -222,7 +232,7 @@ public class FileOper implements IXMLFileOper{
                 }
                 //遍历row里面的cell
                 HashMap<String,Cell> cellHashMap = row.getUnitMap();
-                for (HashMap.Entry<String,Cell> entry:cellHashMap.entrySet()){
+                for (HashMap.Entry<String,Cell> entry : cellHashMap.entrySet()){
                     Cell cell = entry.getValue();
                     Element cellElement = rowElement.addElement("c");
                     cellElement.addAttribute("r",cell.getId());
@@ -236,54 +246,6 @@ public class FileOper implements IXMLFileOper{
         return document;
     }
 
-    /**
-     * 根据XML文件流初始化TableInfo对象
-     */
-//    public void initTableInfoFromFile(InputStream is) {
-//        HashMap<Integer,Row> rows = new HashMap<>();
-//        String  rangeSb = null;
-//        List<Element> rowList = null;
-//        SAXReader reader = new SAXReader();
-//        Element root;
-//        try {
-//            Document document = reader.read(is);
-//            FileOper.document = document;
-//            root = document.getRootElement();
-//            rangeSb = root.element("dimension").attributeValue("ref");
-//            rowList = root.element("sheetData").elements("row");
-//        } catch (DocumentException e) {
-//            e.printStackTrace();
-//
-//            /*文件错误*/
-//        }
-//
-//        for (Iterator<Element> iterator = rowList.iterator(); iterator.hasNext();){
-//            Row row = new Row();
-//            Element rowElement = iterator.next();
-//            int rowId = Integer.parseInt(rowElement.attributeValue("r"));
-//            row.setRowId(rowId);
-//            row.setUnitMap(getRowUnits(rowElement));
-//            rows.put(rowId,row);
-//        }
-//        Sheet.setInstance(rangeSb,rows);
-//    }
-
-//    public List<Element> getRowList(InputStream is, StringBuilder rangeSb){
-//        List<Element> rowList = null;
-//        SAXReader reader = new SAXReader();
-//        try {
-//            Document document = reader.read(is);
-//            FileOper.document = document;
-//            Element root = document.getRootElement();
-//            //表示的是有数据的格子范围，是一个矩形如，B4:E8
-//            rangeSb.append(root.element("dimension").attributeValue("ref"));
-//            rowList = root.element("sheetData").elements("row");
-//        } catch (DocumentException e) {
-//            e.printStackTrace();
-//        }
-//        return rowList;
-//    }
-
     private HashMap<String,Cell> getRowUnits(Element rowElement){
         HashMap<String,Cell> unitsHashMap = new HashMap<>();
         List<Element> cellList = rowElement.elements("c");
@@ -292,7 +254,7 @@ public class FileOper implements IXMLFileOper{
             Cell cel1 = new Cell();
             cel1.setId(cellElement.attributeValue("r"));
             cel1.setValue(cellElement.element("v").getText());
-            if (cellElement.element("f")!=null){
+            if (cellElement.element("f") != null){
                 cel1.setFormula(cellElement.element("f").getText());
             }
             unitsHashMap.put(cel1.getId(),cel1);
@@ -300,23 +262,5 @@ public class FileOper implements IXMLFileOper{
 
         return unitsHashMap;
     }
-
-
-
-    public void writeIntoFile(File file){
-        OutputFormat format = OutputFormat.createPrettyPrint();
-        format.setEncoding("UTF-8");
-        try {
-            XMLWriter writer = new XMLWriter(new FileOutputStream(file),format);
-            writer.write(document);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 
 }

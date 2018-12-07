@@ -57,12 +57,16 @@ public class KeyboardStatusDetector {
         return this;
     }
 
-    public KeyboardStatusDetector setmVisibilityListener(KeyboardVisibilityListener listener) {
+    public KeyboardStatusDetector setVisibilityListener(KeyboardVisibilityListener listener) {
         mVisibilityListener = listener;
         return this;
     }
 
     public interface KeyboardVisibilityListener {
+        /**
+         * 当键盘弹出或者收回时，调用该方法
+         * @param keyboardVisible
+         */
         void onVisibilityChanged(boolean keyboardVisible);
     }
 

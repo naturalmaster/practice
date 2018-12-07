@@ -29,10 +29,10 @@ public class SelcMonitor implements OnSelcRecChangedListener {
         DataHelper helper = new DataHelper();
         Cell cell = helper.getCell(oldRow,oldCol,paintData);
         //满足条件，单元格需要更新
-       if ( cell!=null && cell.getValue()!=newValue){
-            helper.updateCell(paintData,oldRow,oldCol,newValue);
-        } else {
-           helper.updateCell(paintData,oldRow,oldCol,newValue);
-       }
+//       if ( cell != null && cell.getValue() != newValue){
+            helper.updateCell(paintData, oldRow, oldCol, newValue);
+//        } else {
+//           helper.updateCell(paintData,oldRow,oldCol,newValue);
+//       }
     }
 }

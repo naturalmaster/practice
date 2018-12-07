@@ -33,7 +33,6 @@ public class DataHelperTest {
         helper = new DataHelper();
         int res = helper.colStrToNum("AA");
         System.out.println("result: "+res);
-
     }
 
 

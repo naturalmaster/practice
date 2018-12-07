@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -26,8 +25,6 @@ import com.example.coney.calc_formula.dataManage.data.Row;
 import com.example.coney.calc_formula.dataManage.data.Sheet;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -77,39 +74,26 @@ public class PaintBoard extends View {
         initScreenAttri();
         //设置监听器
         initListener();
-//        Book book = new Book("default");
-//        Sheet sheet = new Sheet("A1:A1",new HashMap<Integer, Row>(),new HashMap<String, ColAttri>());
-//        sheet.setSheetId(0);
-//        book.getSheets().put(0,sheet);
-//        paintData = new PaintData(0,book);
-
-        //加载xml文件，暂时使用assets文件夹
-        try {
-            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
-            Log.d("book_null","******************");
-//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR+"/sheet1.xml")));
-//            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
-            Log.d("book_null",(book == null) + "");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        paintData = new PaintData(selectSheetId,book);
+        Book book = new Book("default");
+        Sheet sheet = new Sheet("A1:B4", new HashMap<Integer, Row>(), new HashMap<String, ColAttri>());
+        sheet.setSheetId(0);
+        book.getSheets().put(0,sheet);
+        paintData = new PaintData(0,book);
         selcRecChangedListener = new SelcMonitor(paintData);
     }
 
-//    public void loadFile(String fileName){
-//        //加载xml文件，暂时使用assets文件夹
-//        try {
-////            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
-//            Log.d("book_null","******************");
-//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR,fileName)));
-////            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
-//            Log.d("book_null",(book == null) + "");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        paintData = new PaintData(selectSheetId,book);
-//    }
+    public void loadFile(String fileName){
+        try {
+            Book mBook = paintData.getBook();
+            File file = new File(FileOper.FILE_DIR,fileName);
+            FileOper fileOper = new FileOper();
+            fileOper.loadFile(file,mBook,1);
+            selectSheetId = 1;
+            paintData.setSelectedSheetId(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void initListener(){
         //手势监听
         GestureListener gestureListener = new GestureListener();
@@ -182,7 +166,6 @@ public class PaintBoard extends View {
 
         @Override
         public boolean onDown(MotionEvent e) {
-
             return true;
         }
 
@@ -205,10 +188,13 @@ public class PaintBoard extends View {
             Cell cell = helper.getCell(selcRow,selcCol,paintData);
             inputText.setCursorVisible(false);
             if (cell!=null){
-                inputText.setText(cell.getValue());
+                if (cell.isHasFormula()){
+                    inputText.setText("=" + cell.getFormula());
+                }else {
+                    inputText.setText(cell.getValue());
+                }
             }else{
                 inputText.setText("");
-
             }
             inputText.setSelection(inputText.getText().length());
             postInvalidate();
@@ -218,7 +204,7 @@ public class PaintBoard extends View {
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             paintData.setVerticalOffset(distanceY+paintData.getVerticalOffset());
-            paintData.setHorizonalOffset(distanceX+paintData.getHorizonalOffset());
+            paintData.setHorizontalOffset(distanceX+paintData.getHorizontalOffset());
             invalidate();
             return true;
         }

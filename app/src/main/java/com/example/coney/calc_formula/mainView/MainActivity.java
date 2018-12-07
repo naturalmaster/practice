@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         paintBoard.setInputText(input);
         new KeyboardStatusDetector()
                 .registerActivity(this)
-                .setmVisibilityListener(new KeyboardStatusDetector.KeyboardVisibilityListener() {
+                .setVisibilityListener(new KeyboardStatusDetector.KeyboardVisibilityListener() {
                     @Override
                     public void onVisibilityChanged(boolean keyboardVisible) {
                         DataHelper helper = new DataHelper();
@@ -63,11 +63,13 @@ public class MainActivity extends AppCompatActivity {
                                 keyboardHeight = getWindowManager().getDefaultDisplay().getHeight() - rect.bottom;
                             }
                             int selcY = (int) helper.getYByRow(paintData.getSelectedRowId(),paintData);
-                            //输入框与view之间最小的间隔
+                            //行高
                             int gribHeigh = (int) helper.getRowHeightByRowId(paintData.getSelectedRowId(),paintData);
+                            //输入框与view之间最小的间隔
                             int inputGap = 80;
-                            if (selcY >= input.getTop() - inputGap - gribHeigh){
-                                paintData.setVerticalOffset(paintData.getVerticalOffset()+selcY-input.getTop()+inputGap+gribHeigh);
+                            int thresholdY = input.getTop() - inputGap - gribHeigh;
+                            if (selcY >= thresholdY){
+                                paintData.setVerticalOffset(paintData.getVerticalOffset() + selcY - thresholdY);
                             }
                         }
                     }
@@ -82,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         Toast.makeText(this,"已保存",Toast.LENGTH_SHORT).show();
+    }
+
+    public void onOpenBtnClick(View v){
+      paintBoard.loadFile("sheet1.xml");
+      Toast.makeText(this,"载入文件...",Toast.LENGTH_SHORT).show();
     }
 
     private void authorityRequest(){
@@ -102,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_PERMISSION_CODE){
-//            paintBoard.loadFile("sheet1.xml");
             Log.i("MainActivity", "申请的权限为：" + permissions[0] + ",申请结果：" + grantResults[0]);
         }
     }

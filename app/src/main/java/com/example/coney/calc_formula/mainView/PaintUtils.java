@@ -42,7 +42,7 @@ public class PaintUtils {
 
         int width = PaintData.getTableEndP().x;
         int height = PaintData.getTableEndP().y;
-        float hOffset = paintData.getHorizonalOffset();
+        float hOffset = paintData.getHorizontalOffset();
         colAttriMap = paintData.getPresentSheet().getColAttriMap();
         //画原始竖线
         canvas.drawLine(defColWidth,0,defColWidth,height,mPaint_normalLine);
@@ -51,38 +51,24 @@ public class PaintUtils {
         float rawX = 0;
         int colNum = 1;
         float presentColWidth = 0;
-        while(rawX<=hOffset+width){
-            if (colAttriMap.get(DataHelper.numToColStr(colNum))!=null){
+        while(rawX <= hOffset + width){
+            if (colAttriMap.get(DataHelper.numToColStr(colNum)) != null){
                 presentColWidth = colAttriMap.get(DataHelper.numToColStr(colNum)).getColWidth();
-                rawX +=presentColWidth;
+                rawX += presentColWidth;
             }
             else{
                 presentColWidth = defColWidth;
-                rawX+=defColWidth;
+                rawX += defColWidth;
             }
 
-            if (rawX>hOffset){
-                canvas.drawLine(rawX-hOffset,0,rawX-hOffset,height,mPaint_normalLine);
-                drawText(rawX-hOffset-presentColWidth/2,rowHeaderHeight/2,DataHelper.numToColStr(colNum) ,canvas);
+            if (rawX > hOffset){
+                canvas.drawLine(rawX-hOffset,0,rawX - hOffset,height,mPaint_normalLine);
+                drawText(rawX - hOffset - presentColWidth/2,rowHeaderHeight/2, DataHelper.numToColStr(colNum), canvas);
             }
             colNum++;
         }
         canvas.restore();
-/*
-        //startX为进行竖线表格绘制时的一个指针，指向当前绘制竖线的位置
-        float startX;
-        float tmp = horizonalOffset%colSpace;
-        if (tmp ==0) startX = colSpace;
-        else
-            startX = colSpace+colSpace-tmp;
-        while(startX<=width+colSpace){
-            canvas.drawLine(startX,0,startX,height,mPaint_normalLine);
-            drawText(startX-colSpace/2,rowSpace/2,""+helper.numToColStr((int) (((startX + horizonalOffset)/colSpace)-1)),canvas);
-            startX+=colSpace;
-        }*/
     }
-
-
     //横线的绘制
     private static void drawGribRow(Canvas canvas,PaintData paintData){
         HashMap<Integer,Row> rows = paintData.getPresentSheet().getRows();
@@ -92,25 +78,24 @@ public class PaintUtils {
         int height = PaintData.getTableEndP().y;
         float vOffset = paintData.getVerticalOffset();
         //画原始横线
-        canvas.drawLine(0,defRowHeight,width,defRowHeight,mPaint_normalLine);
+        canvas.drawLine(0, defRowHeight, width, defRowHeight, mPaint_normalLine);
         canvas.save();
-        canvas.translate(0,defRowHeight);
+        canvas.translate(0, defRowHeight);
         float rawY = 0;
         int rowNum = 1;
         float presentRowWidth = 0;
-        while(rawY<=vOffset+height){
-            if (rows.get(rowNum)!=null){
+        while(rawY <= vOffset + height){
+            if (rows.get(rowNum) != null){
                 presentRowWidth = rows.get(rowNum).getRowHeight();
-                rawY +=presentRowWidth;
+                rawY += presentRowWidth;
             }
             else{
                 presentRowWidth = defRowHeight;
-                rawY+=defRowHeight;
+                rawY += defRowHeight;
             }
-
-            if (rawY>vOffset){
-                canvas.drawLine(0,rawY-vOffset,width,rawY-vOffset,mPaint_normalLine);
-                drawText(colHeaderWidth/2,rawY - vOffset - presentRowWidth/2,""+rowNum +"",canvas);
+            if (rawY > vOffset){
+                canvas.drawLine(0,rawY-vOffset,width,rawY-vOffset, mPaint_normalLine);
+                drawText(colHeaderWidth/2,rawY - vOffset - presentRowWidth/2,"" + rowNum + "", canvas);
             }
             rowNum++;
         }
@@ -123,7 +108,7 @@ public class PaintUtils {
         Point screenStartPoint = PaintData.getTableStartP();
         Point screenEndPoint = PaintData.getTableEndP();
         float yOffset = paintData.getVerticalOffset();
-        float xOffset = paintData.getHorizonalOffset();
+        float xOffset = paintData.getHorizontalOffset();
         float rowHeight = paintData.getDefRowHeight();
         float colWidth = paintData.getDefColWidth();
 
@@ -131,8 +116,8 @@ public class PaintUtils {
         int rowStart = paintData.getStartRow();
         int rowEnd = paintData.getEndRow();
 
-        int colNumStart = DataHelper.colStrToNum(paintData.getStartCol());
-        int colNumEnd = DataHelper.colStrToNum(paintData.getEndCol());
+        int colNumStart = DataHelper.colStrToNum( paintData.getStartCol() );
+        int colNumEnd = DataHelper.colStrToNum( paintData.getEndCol() );
 
         HashMap<Integer,Row> rowHashMap = paintData.getPresentSheet().getRows();
         HashMap<String,ColAttri> colAttriHashMap = paintData.getPresentSheet().getColAttriMap();
@@ -143,8 +128,8 @@ public class PaintUtils {
         int rowNum = 1;
 
         canvas.save();
-        canvas.translate(colWidth,rowHeight);
-        while(rawY<=screenEndPoint.y+yOffset){
+        canvas.translate( colWidth, rowHeight );
+        while(rawY <= screenEndPoint.y + yOffset){
             if (rowHashMap.get(rowNum) == null ){
                 rawY += rowHeight;
                 rowNum++;
@@ -152,8 +137,8 @@ public class PaintUtils {
             }
             float presentRowHeight = rowHashMap.get(rowNum).getRowHeight();
             int rawX = 0;
-            int colNum =1;
-            while (rawY>yOffset - presentRowHeight && rawX<=screenEndPoint.x+xOffset &&rowNum>=rowStart && rowNum<=rowEnd){
+            int colNum = 1;
+            while (rawY > yOffset - presentRowHeight && rawX <= screenEndPoint.x + xOffset && rowNum >= rowStart && rowNum <= rowEnd){
                 Cell cell = helper.getCell(rowNum,DataHelper.numToColStr(colNum),paintData);
                 float presentColWidth;
 
@@ -162,12 +147,11 @@ public class PaintUtils {
                 }else {
                     presentColWidth = colWidth;
                 }
-
                 //有数值,在列的范围内
                if (cell != null &&
-                       colNum>=colNumStart && colNum<=colNumEnd){
-                   if (rawX>xOffset-presentColWidth){
-                       drawText(rawX-xOffset+presentColWidth/2,rawY-yOffset+presentRowHeight/2,cell.getValue(),canvas);
+                       colNum >= colNumStart && colNum <= colNumEnd){
+                   if (rawX > xOffset - presentColWidth){
+                       drawText(rawX - xOffset + presentColWidth/2,rawY - yOffset + presentRowHeight/2,cell.getValue(),canvas);
                    }
                }
                 rawX += presentColWidth;
@@ -187,13 +171,10 @@ public class PaintUtils {
         String colStr = paintData.getSelectedColStr();
         DataHelper helper = new DataHelper();
         int rowId = paintData.getSelectedRowId();
-        float x1,y1;
-        float rowHeight = paintData.getPresentSheet().getRows().get(rowId)==null?paintData.getDefRowHeight():paintData.getPresentSheet().getRows().get(rowId).getRowHeight();
-        float colWidth = paintData.getPresentSheet().getColAttriMap().get(colStr)==null?paintData.getDefColWidth():paintData.getPresentSheet().getColAttriMap().get(colStr).getColWidth();
-
-        x1 = helper.getXByCol(colStr,paintData);
-        y1 = helper.getYByRow(rowId,paintData);
-
+        float x1 = helper.getXByCol(colStr,paintData);
+        float y1 = helper.getYByRow(rowId,paintData);
+        float rowHeight = helper.getRowHeightByRowId(rowId,paintData);
+        float colWidth = helper.getColWidthByColId(colStr,paintData);
         float[] points ={
                 x1,y1,x1+colWidth,y1,
                 x1+colWidth,y1,x1+colWidth,y1+rowHeight,
@@ -206,7 +187,6 @@ public class PaintUtils {
         canvas.clipRect(0,0,paintData.getDefColWidth(), paintData.getDefRowHeight(), Region.Op.DIFFERENCE);
         drawSelcText(paintData.getDefColWidth()/2,y1+rowHeight/2,rowId+"",canvas);
         drawSelcText(x1+colWidth/2,paintData.getDefRowHeight()/2,colStr,canvas);
-
     }
 
     public static void drawGrib(Canvas canvas,PaintData paintData){
@@ -218,7 +198,6 @@ public class PaintUtils {
         drwaGribCol(canvas,paintData);
         drawGribRow(canvas,paintData);
         canvas.restore();
-
         canvas.save();
         canvas.clipRect(PaintData.getTableStartP().x+paintData.getDefColWidth(),
                 PaintData.getTableStartP().y+paintData.getDefRowHeight(),
@@ -232,6 +211,12 @@ public class PaintUtils {
      */
     public static void drawText(float x,float y,String str,Canvas canvas){
         Paint paint = mPaint_text;
+        paint.setTextAlign(Paint.Align.CENTER);
+        canvas.drawText(str,x,y,paint);
+    }
+
+    public static void drawSelcText(float x,float y,String str,Canvas canvas){
+        Paint paint = mPaint_selcText;
         paint.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(str,x,y,paint);
     }
@@ -270,12 +255,4 @@ public class PaintUtils {
 //                    break;
 //        }
 //    }
-
-    public static void drawSelcText(float x,float y,String str,Canvas canvas){
-        Paint paint = mPaint_selcText;
-        paint.setTextAlign(Paint.Align.CENTER);
-        canvas.drawText(str,x,y,paint);
-    }
-
-
 }

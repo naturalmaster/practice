@@ -38,7 +38,7 @@ public class PaintData {
     /**
      *  列偏移
      */
-    private float[] horizonalOffset = new float[sheetCnt+1];
+    private float[] horizontalOffset = new float[sheetCnt+1];
 
     /**
      * 表格ID
@@ -56,15 +56,15 @@ public class PaintData {
     private int[] selectedRowId = new int[sheetCnt+1];
 
     /**
-     * 表格的边界数据
-     */
-
-
-    /**
-     * 边界字符串
+     * **表格的边界数据**
+     *
+     * 1.边界字符串
      */
     private String rangeStr;
 
+    /**
+     * 由边界字符串解析而来的边界数据
+     */
     private String startCol;
     private String endCol;
     private int startRow;
@@ -73,7 +73,6 @@ public class PaintData {
     public PaintData(int selectedSheetId,Book book) {
         this.selectedSheetId = selectedSheetId;
         this.book = book;
-
         setRangeStr(getPresentSheet().getRangeStr());
         Arrays.fill(selectedColStr,"I");
         Arrays.fill(selectedRowId,10);
@@ -108,11 +107,12 @@ public class PaintData {
 
     public void setSelectedSheetId(int selectedSheetId) {
         this.selectedSheetId = selectedSheetId;
+        setRangeStr(getPresentSheet().getRangeStr());
     }
 
     public Sheet getPresentSheet() {
         if (book.getSheets() == null){
-            return  null;
+            return null;
         }
         return book.getSheets().get(selectedSheetId);
     }
@@ -135,6 +135,10 @@ public class PaintData {
 
     public int getSheetId() {
         return selectedSheetId;
+    }
+
+    public Book getBook() {
+        return book;
     }
 
     public String getStartCol() {
@@ -185,14 +189,14 @@ public class PaintData {
         }
     }
 
-    public float getHorizonalOffset() {
-        return horizonalOffset[selectedSheetId];
+    public float getHorizontalOffset() {
+        return horizontalOffset[selectedSheetId];
     }
 
-    public void setHorizonalOffset(float horizonalOffset) {
-        this.horizonalOffset[selectedSheetId] = horizonalOffset;
-        if (horizonalOffset < 0) {
-            this.horizonalOffset[selectedSheetId] = 0;
+    public void setHorizontalOffset(float horizontalOffset) {
+        this.horizontalOffset[selectedSheetId] = horizontalOffset;
+        if (horizontalOffset < 0) {
+            this.horizontalOffset[selectedSheetId] = 0;
         }
     }
 }

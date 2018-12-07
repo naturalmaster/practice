@@ -34,7 +34,6 @@ public class FileOperTest {
         }
         for (HashMap.Entry<Integer,Row> entry:sheet.getRows().entrySet()){
             System.out.println("key"+entry.getKey()+" rowHeightValue:"+entry.getValue().getRowHeight());
-
         }
     }
 
