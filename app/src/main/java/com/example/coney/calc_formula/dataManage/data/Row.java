@@ -16,7 +16,7 @@ public class Row {
 
     private float defRowHeight = 80;
     private int rowId;
-    private float rowHeight=-1;
+    private float rowHeight = -1;
     private boolean hasRowHeight = false;
 
     public HashMap<String, Cell> getUnitMap() {
@@ -45,7 +45,7 @@ public class Row {
     }
 
     public float getRowHeight() {
-        if (rowHeight>0){
+        if (rowHeight > 0){
             return rowHeight;
         }
         return defRowHeight;
@@ -59,12 +59,11 @@ public class Row {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("rowId"+rowId+"\n");
+        sb.append("rowId" + rowId + "\n");
         for (HashMap.Entry<String,Cell> entry:unitMap.entrySet()){
             Cell cell = entry.getValue();
-            sb.append("unit key = " + entry.getKey() +"        value = "+cell.getValue()+"");
-            sb.append("  f:"+(entry.getValue().isHasFormula()?cell.getFormula():" ")+"\n");
-
+            sb.append("unit key = " + entry.getKey() + "        value = " + cell.getValue() + "");
+            sb.append("  f:" + (entry.getValue().hasFormula() ? cell.getFormula() : " ") + "\n");
         }
         return sb.toString();
     }

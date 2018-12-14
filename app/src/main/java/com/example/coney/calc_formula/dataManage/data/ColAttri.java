@@ -13,8 +13,9 @@ public class ColAttri {
     private String colStr;
 
     public float getColWidth() {
-        if (colWidth == -1)
+        if (colWidth == -1){
             return  defColWidth;
+        }
         return colWidth;
     }
 

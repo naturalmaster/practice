@@ -1,4 +1,4 @@
-package com.example.coney.calc_formula.mainView;
+package com.example.coney.calc_formula.view;
 
 /**
  * Created by coney on 2018/11/30.

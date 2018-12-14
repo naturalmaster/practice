@@ -1,12 +1,12 @@
-package com.example.coney.calc_formula.mainView;
+package com.example.coney.calc_formula.view;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -15,19 +15,25 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.coney.calc_formula.IO.FileOper;
 import com.example.coney.calc_formula.MyApplication;
+import com.example.coney.calc_formula.dataManage.operation.OperationListener;
+import com.example.coney.calc_formula.dataManage.operation.OperationMemento;
+import com.example.coney.calc_formula.dataManage.operation.RedoOperation;
+import com.example.coney.calc_formula.dataManage.operation.UndoOperation;
+import com.example.coney.calc_formula.utils.GraphicsUtils;
 import com.example.coney.calc_formula.dataManage.DataHelper;
 import com.example.coney.calc_formula.dataManage.data.Book;
 import com.example.coney.calc_formula.dataManage.data.Cell;
 import com.example.coney.calc_formula.dataManage.data.ColAttri;
 import com.example.coney.calc_formula.dataManage.data.Row;
 import com.example.coney.calc_formula.dataManage.data.Sheet;
+import com.example.coney.calc_formula.utils.CalcUtils;
+import com.example.coney.calc_formula.view.activity.MainActivity;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -37,11 +43,18 @@ import java.util.HashMap;
 public class PaintBoard extends View {
     private EditText inputText;
     private GestureDetector mDetector;
+    private Handler mainHandler;
 
     private Book book;
     private int selectSheetId = 1;
+    private OperationMemento operationMemento;
+    private RedoOperation redoOperation;
+    private UndoOperation undoOperation;
     private Context mContext;
 
+    /**
+     * 内核数据paintData
+     */
     private PaintData paintData;
     private OnSelcRecChangedListener selcRecChangedListener;
 
@@ -49,18 +62,16 @@ public class PaintBoard extends View {
         this(context,null);
     }
 
-
     public PaintBoard(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         this.mContext = context;
         init();
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        PaintUtils.drawGrib(canvas,paintData);
+        GraphicsUtils.drawGrib(canvas,paintData);
     }
 
     @Override
@@ -73,48 +84,59 @@ public class PaintBoard extends View {
 
 
     private void init(){
+        Book book = new Book("default");
+        Sheet sheet = new Sheet("A1:AA99", new HashMap<Integer, Row>(10), new HashMap<String, ColAttri>(5));
+        sheet.setSheetId(0);
+        book.getSheets().put(0,sheet);
+        paintData = new PaintData(0,book);
+
+        operationMemento = new OperationMemento();
+        redoOperation = new RedoOperation(paintData);
+        undoOperation = new UndoOperation(paintData);
+        selcRecChangedListener = new SelcMonitor(paintData,operationMemento);
         //初始化屏幕参数
         initScreenAttri();
         //设置监听器
         initListener();
-//        Book book = new Book("default");
-//        Sheet sheet = new Sheet("A1:A1",new HashMap<Integer, Row>(),new HashMap<String, ColAttri>());
-//        sheet.setSheetId(0);
-//        book.getSheets().put(0,sheet);
-//        paintData = new PaintData(0,book);
-
-        //加载xml文件，暂时使用assets文件夹
-        try {
-            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
-            Log.d("book_null","******************");
-//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR+"/sheet1.xml")));
-//            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
-            Log.d("book_null",(book == null) + "");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        paintData = new PaintData(selectSheetId,book);
-        selcRecChangedListener = new SelcMonitor(paintData);
     }
 
-//    public void loadFile(String fileName){
-//        //加载xml文件，暂时使用assets文件夹
-//        try {
-////            book = new FileOper().loadFile_assets(MyApplication.getmContext().getAssets().open("sheet1.xml"));
-//            Log.d("book_null","******************");
-//            book = new FileOper().loadFile_assets(new FileInputStream(new File(FileOper.FILE_DIR,fileName)));
-////            book = new FileOper().loadFile(new File(FileOper.FILE_DIR+"/sheet1.xml"));
-//            Log.d("book_null",(book == null) + "");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        paintData = new PaintData(selectSheetId,book);
-//    }
+    public void loadFile(String fileName){
+        try {
+            Book mBook = paintData.getBook();
+            mBook.setFILE_URL(fileName);
+            File file = new File(FileOper.FILE_DIR,fileName);
+            FileOper fileOper = new FileOper();
+            fileOper.loadFile(file,mBook,1);
+            selectSheetId = 1;
+            paintData.setSelectedSheetId(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     private void initListener(){
         //手势监听
         GestureListener gestureListener = new GestureListener();
         mDetector = new GestureDetector(MyApplication.getmContext(),gestureListener);
         mDetector.setOnDoubleTapListener(gestureListener);
+        operationMemento.setOperationListener(new OperationListener() {
+            @Override
+            public void onRedoStatusChanged(boolean enabled) {
+                if (enabled){
+                    mainHandler.sendEmptyMessage(MainActivity.ENABLE_REDO_BTN);
+                }else {
+                    mainHandler.sendEmptyMessage(MainActivity.DISABLE_REDO_BTN);
+                }
+            }
+
+            @Override
+            public void onUndoStatusChanged(boolean enabled) {
+                if (enabled){
+                    mainHandler.sendEmptyMessage(MainActivity.ENABLE_UNDO_BTN);
+                }else {
+                    mainHandler.sendEmptyMessage(MainActivity.DISABLE_UNDO_BTN);
+                }
+            }
+        });
 
     }
 
@@ -145,6 +167,36 @@ public class PaintBoard extends View {
         });
     }
 
+    public void setMainHandler(Handler handler){
+        mainHandler = handler;
+    }
+
+    public void redo(){
+        if (redoOperation.redo(operationMemento)){
+            DataHelper helper = new DataHelper(paintData);
+            Cell cell = helper.getCell(paintData.getSelectedRowId(),paintData.getSelectedColStr());
+            if(cell != null){
+                inputText.setText(cell.getValue());
+            }else {
+                inputText.setText("");
+            }
+
+            invalidate();
+        }
+    }
+
+    public void undo(){
+        if (undoOperation.undo(operationMemento)){
+            DataHelper helper = new DataHelper(paintData);
+            Cell cell = helper.getCell(paintData.getSelectedRowId(),paintData.getSelectedColStr());
+            if(cell != null){
+                inputText.setText(cell.getValue());
+            }else {
+                inputText.setText("");
+            }
+            invalidate();
+        }
+    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK){
@@ -160,7 +212,7 @@ public class PaintBoard extends View {
     }
 
     class GestureListener implements GestureDetector.OnGestureListener,GestureDetector.OnDoubleTapListener{
-        DataHelper helper = new DataHelper();
+        DataHelper helper = new DataHelper(paintData);
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             return false;
@@ -182,7 +234,6 @@ public class PaintBoard extends View {
 
         @Override
         public boolean onDown(MotionEvent e) {
-
             return true;
         }
 
@@ -195,30 +246,44 @@ public class PaintBoard extends View {
         public boolean onSingleTapUp(MotionEvent e) {
             int oldRow = paintData.getSelectedRowId();
             String oldCol = paintData.getSelectedColStr();
-            int selcRow = helper.yIndexToRowId(e.getY(),paintData);
-            String selcCol = helper.xIndexToColId(e.getX(),paintData);
-            if (oldRow!=selcRow || !oldCol.equals(selcCol)){
-                selcRecChangedListener.onSelcRecChanged(oldRow,oldCol, String.valueOf(inputText.getText()));
+            int selcRow = helper.yIndexToRowId(e.getY());
+            String selcCol = helper.xIndexToColId(e.getX());
+            if (oldRow != selcRow || !oldCol.equals(selcCol)){
+                String newValue = String.valueOf(inputText.getText());
+                if (newValue != null && newValue.length() != 0){
+                    if (newValue.charAt(0) == '＝' || newValue.charAt(0) == '=' ){
+                        newValue = CalcUtils.fullCharToHalf(newValue);
+                        newValue = newValue.toUpperCase();
+                        if (!CalcUtils.isLegalStr(newValue.substring(1))){
+                            Toast.makeText(mContext,"请检查公式，输入合法的公式",Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                    }
+                }
+                selcRecChangedListener.onSelcRecChanged(oldRow,oldCol, newValue);
             }
             paintData.setSelectedRowId(selcRow);
             paintData.setSelectedColStr(selcCol);
-            Cell cell = helper.getCell(selcRow,selcCol,paintData);
+            Cell cell = helper.getCell(selcRow,selcCol);
             inputText.setCursorVisible(false);
-            if (cell!=null){
-                inputText.setText(cell.getValue());
+            if (cell != null){
+                if (cell.hasFormula()){
+                    inputText.setText("=" + cell.getFormula());
+                }else {
+                    inputText.setText(cell.getValue());
+                }
             }else{
                 inputText.setText("");
-
             }
             inputText.setSelection(inputText.getText().length());
-            postInvalidate();
+            invalidate();
             return true;
         }
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
             paintData.setVerticalOffset(distanceY+paintData.getVerticalOffset());
-            paintData.setHorizonalOffset(distanceX+paintData.getHorizonalOffset());
+            paintData.setHorizontalOffset(distanceX+paintData.getHorizontalOffset());
             invalidate();
             return true;
         }

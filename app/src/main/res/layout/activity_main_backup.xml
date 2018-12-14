@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.coney.calc_formula.mainView.MainActivity">
+    tools:context="com.example.coney.calc_formula.view.activity.MainActivity">
 
-    <com.example.coney.calc_formula.mainView.PaintBoard
+    <com.example.coney.calc_formula.view.PaintBoard
         android:id="@+id/main_activity_paintboard"
         android:layout_width="0dp"
         android:layout_height="0dp"

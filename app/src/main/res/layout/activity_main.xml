@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.coney.calc_formula.mainView.MainActivity">
+    tools:context="com.example.coney.calc_formula.view.activity.MainActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/main_activity_toolbar"
@@ -12,22 +12,46 @@
         android:background="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="45dp">
-            <TextView
-                android:text="编辑"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"/>
-            <ImageButton
-                android:id="@+id/main_activity_ibtn_save"
-                android:src="@drawable/save_ico"
-                android:onClick="onSaveBtnClick"
-                android:scaleType="fitCenter"
-                android:background="@color/colorPrimary"
-                android:layout_width="30dp"
-                android:layout_height="30dp" />
-
+        <TextView
+            android:text="编辑"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"/>
+        <ImageButton
+            android:id="@+id/main_activity_ibtn_save"
+            android:src="@drawable/save_ico"
+            android:scaleType="fitCenter"
+            android:background="@color/colorPrimary"
+            android:layout_marginRight="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+        <ImageButton
+        android:id="@+id/main_activity_ibtn_open"
+        android:src="@drawable/open_ico"
+        android:scaleType="fitCenter"
+        android:background="@color/colorPrimary"
+        android:layout_marginRight="20dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+        <ImageButton
+            android:id="@+id/main_activity_ibtn_undo"
+            android:src="@drawable/undo_ico"
+            android:clickable="false"
+            android:background="@color/colorPrimary"
+            android:layout_marginRight="20dp"
+            android:scaleType="fitCenter"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
+        <ImageButton
+            android:id="@+id/main_activity_ibtn_redo"
+            android:src="@drawable/redo_ico"
+            android:background="@color/colorPrimary"
+            android:layout_marginRight="20dp"
+            android:scaleType="fitCenter"
+            android:layout_width="30dp"
+            android:layout_height="30dp" />
     </android.support.v7.widget.Toolbar>
-    <com.example.coney.calc_formula.mainView.PaintBoard
+    <com.example.coney.calc_formula.view.PaintBoard
         android:id="@+id/main_activity_paintboard"
         android:layout_width="0dp"
         android:layout_height="0dp"

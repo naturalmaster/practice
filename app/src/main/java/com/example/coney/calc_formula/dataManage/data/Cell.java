@@ -2,12 +2,13 @@ package com.example.coney.calc_formula.dataManage.data;
 
 import android.util.Log;
 
+import com.example.coney.calc_formula.utils.CalcUtils;
+
 /**
  *
  * @author coney
  * @date 2018/11/12
  */
-
 public class Cell {
 
     private int rowId;
@@ -22,9 +23,17 @@ public class Cell {
 
     private boolean hasFormula = false;
     /**
-     * 公式内容，当hasFormula为false该值为Null
+     * 公式内容，当hasFormula为false该值为Null或空字符串
      */
     private String formula;
+
+    public Cell() {
+    }
+
+    public Cell(String id, String value) {
+        this.id = id;
+        this.value = value;
+    }
 
     public int getRowId() {
         return rowId;
@@ -58,11 +67,22 @@ public class Cell {
     }
 
     public void setValue(String value) {
-        this.value = value;
+        String resValue = value;
+        if (CalcUtils.isDouble(resValue)){
+            float f = Float.parseFloat(resValue);
+            if (f == (int)f){
+                resValue = String.valueOf((int)f);
+            }
+        }
+        this.value = resValue;
     }
 
-    public boolean isHasFormula() {
+    public boolean hasFormula() {
         return hasFormula;
+    }
+
+    public void setHasFormula(boolean hasFormula) {
+        this.hasFormula = hasFormula;
     }
 
     public String getFormula() {
@@ -70,8 +90,14 @@ public class Cell {
     }
 
     public void setFormula(String formula) {
-        this.hasFormula = true;
-        this.formula = formula;
+        if (formula == null || formula.equals("")  || formula.length() == 0){
+            this.formula = "";
+            this.hasFormula = false;
+        }else {
+            this.hasFormula = true;
+            this.formula = formula;
+        }
+
     }
 
 }
