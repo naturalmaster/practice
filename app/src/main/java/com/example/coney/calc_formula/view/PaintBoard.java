@@ -98,12 +98,24 @@ public class PaintBoard extends View {
         initScreenAttri();
         //设置监听器
         initListener();
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/view/PaintBoard.java
+=======
+        Book book = new Book("default");
+        Sheet sheet = new Sheet("A1:B4", new HashMap<Integer, Row>(), new HashMap<String, ColAttri>());
+        sheet.setSheetId(0);
+        book.getSheets().put(0,sheet);
+        paintData = new PaintData(0,book);
+        selcRecChangedListener = new SelcMonitor(paintData);
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintBoard.java
     }
 
     public void loadFile(String fileName){
         try {
             Book mBook = paintData.getBook();
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/view/PaintBoard.java
             mBook.setFILE_URL(fileName);
+=======
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintBoard.java
             File file = new File(FileOper.FILE_DIR,fileName);
             FileOper fileOper = new FileOper();
             fileOper.loadFile(file,mBook,1);
@@ -266,8 +278,13 @@ public class PaintBoard extends View {
             paintData.setSelectedColStr(selcCol);
             Cell cell = helper.getCell(selcRow,selcCol);
             inputText.setCursorVisible(false);
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/view/PaintBoard.java
             if (cell != null){
                 if (cell.hasFormula()){
+=======
+            if (cell!=null){
+                if (cell.isHasFormula()){
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintBoard.java
                     inputText.setText("=" + cell.getFormula());
                 }else {
                     inputText.setText(cell.getValue());

@@ -37,9 +37,13 @@ import java.util.List;
 
 public class FileOper implements IXMLFileOper{
     public static Document document;
+<<<<<<< HEAD
 
 //    public static final String FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+"/my_excel";
     public static final String FILE_DIR = "/storage/emulated/0/my_excel";
+=======
+    public static final String FILE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+"/my_excel";
+>>>>>>> tmp
 //    public static final String FILE_DIR = "/my_excel";
 
     @Override
@@ -59,7 +63,11 @@ public class FileOper implements IXMLFileOper{
         }
         Sheet sheet = loadFromXMLStream(new FileInputStream(file));
         if (sheet != null){
+<<<<<<< HEAD
             Log.d("book_null",(sheet.getRangeStr())+" sheet表不为空");
+=======
+            Log.d("book_null",(sheet.getRangeStr())+" sheet表为空");
+>>>>>>> tmp
         }
         book.getSheets().put(sheetId,sheet);
         return true;

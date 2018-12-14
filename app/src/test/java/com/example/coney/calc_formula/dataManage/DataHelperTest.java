@@ -34,9 +34,17 @@ public class DataHelperTest {
         helper = new DataHelper(paintData);
     }
 
+<<<<<<< HEAD
     @After
     public void tearDown() throws Exception {
 
+=======
+    @Test
+    public void colStrToNumTest(){
+        helper = new DataHelper();
+        int res = helper.colStrToNum("AA");
+        System.out.println("result: "+res);
+>>>>>>> tmp
     }
 
     @Test

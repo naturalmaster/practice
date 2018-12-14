@@ -20,6 +20,10 @@
         <ImageButton
             android:id="@+id/main_activity_ibtn_save"
             android:src="@drawable/save_ico"
+<<<<<<< HEAD
+=======
+            android:onClick="onSaveBtnClick"
+>>>>>>> tmp
             android:scaleType="fitCenter"
             android:background="@color/colorPrimary"
             android:layout_marginRight="20dp"
@@ -28,6 +32,7 @@
         <ImageButton
         android:id="@+id/main_activity_ibtn_open"
         android:src="@drawable/open_ico"
+<<<<<<< HEAD
         android:scaleType="fitCenter"
         android:background="@color/colorPrimary"
         android:layout_marginRight="20dp"
@@ -50,6 +55,15 @@
             android:scaleType="fitCenter"
             android:layout_width="30dp"
             android:layout_height="30dp" />
+=======
+        android:onClick="onOpenBtnClick"
+        android:scaleType="fitCenter"
+        android:background="@color/colorPrimary"
+        android:layout_width="30dp"
+        android:layout_height="30dp" />
+
+
+>>>>>>> tmp
     </android.support.v7.widget.Toolbar>
     <com.example.coney.calc_formula.view.PaintBoard
         android:id="@+id/main_activity_paintboard"

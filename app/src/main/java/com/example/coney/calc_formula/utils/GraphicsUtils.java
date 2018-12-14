@@ -117,6 +117,10 @@ public class GraphicsUtils {
 
         int rowStart = paintData.getStartRow();
         int rowEnd = paintData.getEndRow();
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
+=======
+
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
         int colNumStart = DataHelper.colStrToNum( paintData.getStartCol() );
         int colNumEnd = DataHelper.colStrToNum( paintData.getEndCol() );
 
@@ -140,7 +144,11 @@ public class GraphicsUtils {
             int rawX = 0;
             int colNum = 1;
             while (rawY > yOffset - presentRowHeight && rawX <= screenEndPoint.x + xOffset && rowNum >= rowStart && rowNum <= rowEnd){
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
                 Cell cell = helper.getCell(rowNum,DataHelper.numToColStr(colNum));
+=======
+                Cell cell = helper.getCell(rowNum,DataHelper.numToColStr(colNum),paintData);
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
                 float presentColWidth;
                 if (colAttriHashMap.get(DataHelper.numToColStr(colNum)) != null){
                     presentColWidth = colAttriHashMap.get(DataHelper.numToColStr(colNum)).getColWidth();
@@ -151,6 +159,7 @@ public class GraphicsUtils {
                if (cell != null &&
                        colNum >= colNumStart && colNum <= colNumEnd){
                    if (rawX > xOffset - presentColWidth){
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
                        float result = 0;
                        if (cell.hasFormula()){
                            result = Calculator.calculate(cell.getFormula(),paintData);
@@ -158,6 +167,9 @@ public class GraphicsUtils {
                        }
                        String drawText = cell.getValue();
                        drawText(rawX - xOffset + presentColWidth/2,rawY - yOffset + presentRowHeight/2,drawText,canvas);
+=======
+                       drawText(rawX - xOffset + presentColWidth/2,rawY - yOffset + presentRowHeight/2,cell.getValue(),canvas);
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
                    }
                }
                 rawX += presentColWidth;
@@ -177,10 +189,17 @@ public class GraphicsUtils {
         String colStr = paintData.getSelectedColStr();
         DataHelper helper = new DataHelper(paintData);
         int rowId = paintData.getSelectedRowId();
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
         float x1 = helper.getXByCol(colStr);
         float y1 = helper.getYByRow(rowId);
         float rowHeight = helper.getRowHeightByRowId(rowId);
         float colWidth = helper.getColWidthByColId(colStr);
+=======
+        float x1 = helper.getXByCol(colStr,paintData);
+        float y1 = helper.getYByRow(rowId,paintData);
+        float rowHeight = helper.getRowHeightByRowId(rowId,paintData);
+        float colWidth = helper.getColWidthByColId(colStr,paintData);
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
         float[] points ={
                 x1,y1,x1+colWidth,y1,
                 x1+colWidth,y1,x1+colWidth,y1+rowHeight,
@@ -224,11 +243,16 @@ public class GraphicsUtils {
     public static void drawSelcText(float x,float y,String str,Canvas canvas){
         Paint paint = mPaint_selcText;
         paint.setTextAlign(Paint.Align.CENTER);
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
         canvas.drawText(str,x,y + textSize/2,paint);
+=======
+        canvas.drawText(str,x,y,paint);
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
     }
 //    public static void drawDataText(float x,float y,float rowHeight,float colWidth,String str,Canvas canvas){
 //        drawText(x,y,rowHeight,colWidth,"right",mPaint_text,str,canvas);
 //    }
+<<<<<<< HEAD:app/src/main/java/com/example/coney/calc_formula/utils/GraphicsUtils.java
 
     /**
      * 可以根据参数，在表格中以不同的对齐方式进行文字的绘制
@@ -260,4 +284,38 @@ public class GraphicsUtils {
                     break;
         }
     }
+=======
+//
+//    /**
+//     * 可以根据参数，在表格中以不同的对齐方式进行文字的绘制
+//     * @param x 表格左上角的x坐标
+//     * @param y 表格左上角的y坐标
+//     * @param rowHeight 当前表格行高列宽
+//     * @param colWidth 当前表格行高列宽
+//     * @param alignType 对其方式，可选的有：left,right,center
+//     * @param paint 画笔
+//     * @param str 绘制具体的文字
+//     * @param canvas 画布
+//     */
+//    public static void drawText(float x,float y,float rowHeight,float colWidth,String alignType,Paint paint,String str,Canvas canvas){
+//        switch (alignType){
+//            case "left":
+//                paint.setTextAlign(Paint.Align.LEFT);
+//                canvas.drawText(str,x,y+rowHeight/2,paint);
+//                break;
+//            case "right":
+//                paint.setTextAlign(Paint.Align.RIGHT);
+//                canvas.drawText(str,x+colWidth,y+rowHeight/2,paint);
+//                break;
+//            case "center":
+//                paint.setTextAlign(Paint.Align.CENTER);
+//                canvas.drawText(str,x+colWidth/2,y+rowHeight/2,paint);
+//                break;
+//
+//                default:
+//                    Log.e("PaintUtils:358","alignTypeError");
+//                    break;
+//        }
+//    }
+>>>>>>> tmp:app/src/main/java/com/example/coney/calc_formula/mainView/PaintUtils.java
 }

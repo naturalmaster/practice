@@ -63,7 +63,11 @@ public class Row {
         for (HashMap.Entry<String,Cell> entry:unitMap.entrySet()){
             Cell cell = entry.getValue();
             sb.append("unit key = " + entry.getKey() + "        value = " + cell.getValue() + "");
+<<<<<<< HEAD
             sb.append("  f:" + (entry.getValue().hasFormula() ? cell.getFormula() : " ") + "\n");
+=======
+            sb.append("  f:" + (entry.getValue().isHasFormula() ? cell.getFormula() : " ") + "\n");
+>>>>>>> tmp
         }
         return sb.toString();
     }

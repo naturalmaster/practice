@@ -1,6 +1,10 @@
 package com.example.coney.calc_formula.formula;
 
+<<<<<<< HEAD
 import com.example.coney.calc_formula.view.PaintData;
+=======
+import com.example.coney.calc_formula.mainView.PaintData;
+>>>>>>> tmp
 
 import java.util.LinkedList;
 import java.util.Stack;
@@ -12,6 +16,7 @@ import java.util.Stack;
  */
 
 public class Calculator {
+<<<<<<< HEAD
     /**
      * 可以直接计算表格字符串的函数
      * 如 B2 + B3
@@ -23,15 +28,28 @@ public class Calculator {
     public static float calculate(String str, PaintData paintData){
         FormulaTranser formulaTranser = new FormulaTranser(paintData);
         String express = formulaTranser.transFormula(str);
+=======
+
+    public static float calculate(String str, PaintData paintData){
+        CalFormula calFormula = new CalFormula(paintData);
+        String express = calFormula.trans_formula(str);
+>>>>>>> tmp
         return calculate(express);
     }
     /**
      * 将字符串内的表达式进行四则运算，返回结果
+<<<<<<< HEAD
      * @param expres 字符串表达式，字符串只能是只包含数字的,如 1+ 5 +6
      *               不允许 B2 + B5
      * @return 返回运算得到的结果
      */
     private static float calculate(String expres){
+=======
+     * @param expres 字符串表达式
+     * @return 返回运算得到的结果
+     */
+    public static float calculate(String expres){
+>>>>>>> tmp
         LinkedList<String> suffixExpre = expressToSuffix(expres);
         Stack<Float> numStack = new Stack<>();
         while (!suffixExpre.isEmpty()){
@@ -63,7 +81,11 @@ public class Calculator {
         return numStack.pop();
     }
 
+<<<<<<< HEAD
     private static LinkedList<String> expressToSuffix(String express){
+=======
+    public static LinkedList<String> expressToSuffix(String express){
+>>>>>>> tmp
         express = express.trim();
         LinkedList<String> suffix = new LinkedList<>();
         Stack<Character> operStack = new Stack<>();

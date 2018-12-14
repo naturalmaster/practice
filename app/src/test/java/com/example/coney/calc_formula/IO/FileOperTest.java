@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 public class FileOperTest {
     @Test
+<<<<<<< HEAD
     public void loadFileTest() throws FileNotFoundException {
         String filePath = "app/src/main/assets/sheet1_test2.xml";
         String MSG_TAG = "file 读取错误";
@@ -32,6 +33,18 @@ public class FileOperTest {
         String D10Val = sheet.getRows().get(10).getUnitMap().get("D10").getValue();
         Assert.assertEquals("102",D10Val);
        Assert.assertEquals(MSG_TAG,"B3:E17",sheet.getRangeStr());
+=======
+    public void loadFileTest(){
+        Sheet sheet = null;
+        try {
+            sheet = new FileOper().loadFromXMLStream(new FileInputStream("c://tmp//sheet1_document.xml"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        for (HashMap.Entry<Integer,Row> entry:sheet.getRows().entrySet()){
+            System.out.println("key"+entry.getKey()+" rowHeightValue:"+entry.getValue().getRowHeight());
+        }
+>>>>>>> tmp
     }
 
 }
